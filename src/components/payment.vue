@@ -21,17 +21,17 @@ function CalculateBill() {
       <v-card-title> Summary </v-card-title>
       <v-row>
         <v-col cols="6">Total Price</v-col>
-        <v-col cols="6" class="text-right"> ₹{{ props.productPrice }} </v-col>
+        <v-col cols="6" class="text-right"> {{ props.productPrice }} </v-col>
       </v-row>
 
       <v-row>
         <v-col cols="6">Delivery Fee</v-col>
-        <v-col cols="6" class="text-right"> ₹{{ props.deliveryFee }} </v-col>
+        <v-col cols="6" class="text-right"> {{ props.deliveryFee }} </v-col>
       </v-row>
 
       <v-row>
         <v-col cols="6">Market Fee</v-col>
-        <v-col cols="6" class="text-right"> ₹{{ props.marketFee }} </v-col>
+        <v-col cols="6" class="text-right"> {{ props.marketFee }} </v-col>
       </v-row>
 
       <v-divider class="my-4"></v-divider>

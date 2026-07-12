@@ -5,6 +5,7 @@ import CartView from "@/views/cartView.vue";
 import editProduct from "@/views/editProduct.vue";
 import { useAuthStore } from "@/stores/userAuth";
 import PaymentView from "@/views/paymentView.vue";
+import registerView from "@/views/registerView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,10 @@ const router = createRouter({
         requiresAuth: true,
         role: "admin",
       },
+    },
+    {
+      path: "/register",
+      component: registerView,
     },
   ],
 });

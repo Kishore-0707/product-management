@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { useProductStore } from "./product";
 import axios from "axios";
 import toast from "@/utility/toast";
+import api from "@/api/services";
 
 export const useAuthStore = defineStore("user", {
   state: () => ({
@@ -57,5 +58,14 @@ export const useAuthStore = defineStore("user", {
         this.currentUser = true
       }
     },
+    async addUsers(users){
+
+      const newID = this.userdetails.length === 0 ? 1 : Math.max(...this.userdetails.map(user => user.uid)) + 1;
+      await api.post(`http://localhost:3000/users`,{
+        uid: newID,
+        ...users
+      })
+    },
+
   },
 });

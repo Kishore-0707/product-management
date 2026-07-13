@@ -11,6 +11,7 @@ import "vue-toastification/dist/index.css";
 import { createRulesPlugin } from "vuetify/labs/rules";
 import "vuetify/styles";
 import "@mdi/font/css/materialdesignicons.min.css";
+import validatePlugin from "./plugin/validatePlugin.js";
 
 const app = createApp(App);
 
@@ -38,5 +39,6 @@ app.use(router);
 app.use(vuetify);
 app.use(Toast)
 app.use(createRulesPlugin({}, vuetify.locale))
+app.use(validatePlugin)
 
 app.mount("#app");

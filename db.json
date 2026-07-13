@@ -29,7 +29,18 @@
       "id": "6ng_5oY"
     }
   ],
-  "cart": [],
+  "cart": [
+    {
+      "productId": "lpWFW15",
+      "productName": "mobile",
+      "brandName": "Oneplus",
+      "description": "Never settle",
+      "price": "40000",
+      "quantity": 3,
+      "uid": 3,
+      "id": 1
+    }
+  ],
   "users": [
     {
       "uid": 1,
@@ -44,6 +55,56 @@
       "password": "user@123",
       "role": "user",
       "id": "Osxo-Kybyy8"
+    },
+    {
+      "uid": 3,
+      "name": "kishote",
+      "username": "kishore12",
+      "password": "admin@123",
+      "email": "kishorebalakuamar07@gmail.com",
+      "dob": "2026-07-08",
+      "role": "admin",
+      "id": "p8-E4xG"
+    },
+    {
+      "uid": 3,
+      "name": "kishote",
+      "username": "kishore12",
+      "password": "admin@123",
+      "email": "kishorebalakuamar07@gmail.com",
+      "dob": "2026-07-08",
+      "role": "admin",
+      "id": "uO9yEDv"
+    },
+    {
+      "uid": 3,
+      "name": "kishote",
+      "username": "kishore12",
+      "password": "admin@123",
+      "email": "kishorebalakuamar07@gmail.com",
+      "dob": "2026-07-08",
+      "role": "admin",
+      "id": "OsegEhe"
+    },
+    {
+      "uid": 4,
+      "name": "kishote",
+      "username": "kishore122",
+      "password": "admin@123",
+      "email": "kishorebalakuamar07@gmail.com",
+      "dob": "2026-07-08",
+      "role": "admin",
+      "id": "EhcCAX4"
+    },
+    {
+      "uid": 5,
+      "name": "kishote",
+      "username": "kishore22",
+      "password": "admin@123",
+      "email": "kishorebalakuamar07@gmail.com",
+      "dob": "2026-07-08",
+      "role": "admin",
+      "id": "SqLKXWX"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

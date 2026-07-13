@@ -3,79 +3,26 @@ import { useProductStore } from "@/stores/product";
 import { useAuthStore } from "@/stores/userAuth";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { defineProps } from "vue";
 
 const productStore = useProductStore();
 const userStore = useAuthStore();
 const router = useRouter();
+const props = defineProps({
+  product: Object
+})
 
-function addToCart(product) {
-  productStore.cartFunction(product);
-
-  if (userStore.role === "") {
-    router.push("/login");
-  }
-}
-onMounted(() => {
-  productStore.fetchProducts();
-});
-
-productStore.$subscribe(
-  (mutation, state) => {
-    console.log("product Store excuted");
-    (console.log(mutation, state), { flush: "post" });
-  },
-  { detached: true },
-);
 </script>
 
 <template>
-  <v-container>
-    <v-row class="py-6">
-      <v-btn
-        color="primary"
-        rounded="lg"
-        size="large"
-        class=""
-        width="20%"
-        type="submit"
-        v-show="userStore.role === 'admin'"
-        @click="router.push('/edit')"
-        :ripple="{ class: 'text-red' }"
-      >
-        Edit Product</v-btn
-      >
-      <v-btn
-        color="primary"
-        rounded="lg"
-        size="large"
-        class="ml-4"
-        width="20%"
-        type="submit"
-        @click="router.push('/cart')"
-        >cart
-      </v-btn>
-    </v-row>
+  <v-card-title>
+    <p>product name : {{ props.product.brandName }} {{ props.product.productName }}</p></v-card-title
+  >
+  <v-card-subtitle>
+    <p>Description : {{ props.product.description }}</p></v-card-subtitle>
+  <p style="padding-left: 20px">price :{{ props.product.price }}</p>
 
-    <v-card class="pa-6 mb-6" rounded="lg" v-for="product in productStore.productsItems" :key="product.$id">
-      <v-card-title>
-        <p>product name : {{ product.brandName }} {{ product.productName }}</p></v-card-title
-      >
-      <v-card-subtitle>
-        <p>Description : {{ product.description }}</p></v-card-subtitle
-      >
-      <p style="padding-left: 20px">price :{{ product.price }}</p>
-
-      <v-btn
-        color="secondary"
-        rounded="lg"
-        size="large"
-        class="ma-8"
-        width="80%"
-        @click="addToCart(product)"
-        >add to cart</v-btn
-      >
-    </v-card>
-  </v-container>
+  
 </template>
 <style scoped>
 .container {

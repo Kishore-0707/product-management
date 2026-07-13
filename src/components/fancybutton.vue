@@ -1,11 +1,11 @@
 <script setup></script>
 <template>
     
-      <v-btn color="primary" class="justify-center align-center" rounded="lg"  size="large"  width="20%">
+      <v-btn color="primary" class="justify-center align-center" rounded="lg"  size="large" variant="flat"  width="20%">
         <slot>Click me</slot>
     </v-btn>
     
-    </template>
+</template>
 <style>
 
 

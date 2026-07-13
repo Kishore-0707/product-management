@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/userAuth";
 import fancybutton from "@/components/fancybutton.vue";
 import { useRouter,RouterView } from "vue-router";
 import { ref } from "vue";
+import Displaycard from "@/components/homePage/displaycard.vue";
 
 const productStore = useProductStore();
 const userStore = useAuthStore();
@@ -15,9 +16,9 @@ productStore.fetchCartItems();
 
 </script>
 <template>
-  <v-container class = "container">
-    <p>Total Price :{{productStore.calculatePrice() }}</p>
-    
+  <v-container color="danger" class = "">
+    <p v-if="productStore.calculatePrice() !== 0">Total Price :{{productStore.calculatePrice() }}</p>
+    <p v-else >Cart is Empty !!</p>
     <!-- <div class="card" v-for="items in productStore.cartItems.filter((item) => userStore.uid == item.uid)" :key="items.id" >
         <p>Product Name :{{ items.productName }}</p>
         <p>Price :{{ items.price }}</p>
@@ -28,13 +29,9 @@ productStore.fetchCartItems();
         <button @click="productStore.increaseQuantity(items)">+</button>        
     </div>
      -->
-    <v-card v-for="items in productStore.cartItems" class="card">
-      <v-card-title >
-        Product Name : {{items.productName}}
-      </v-card-title>
-      <v-card-subtitle>
-        Price : {{ items.price }}
-      </v-card-subtitle>
+    <v-card v-for="items in productStore.cartItems" class="ma-4" :elevation="10">
+      
+      <displaycard :product="items"/>
       <v-card-actions  varient="flat" style="display: flex;">
         <fancybutton style="margin-right:0px ;" @click="productStore.deleteCartProduct(items)">
           -

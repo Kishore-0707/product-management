@@ -1,44 +1,74 @@
 {
   "products": [
     {
-      "productName": "mobile",
-      "price": "40000",
-      "brandName": "Oneplus",
-      "description": "Never settle",
-      "id": "lpWFW15"
-    },
-    {
       "productName": "one",
-      "brandName": "NASA",
       "price": 12,
+      "brandName": "NASAs",
       "description": "This is a rocket from Nasa",
       "id": "fNSJm8g"
     },
     {
       "productName": "kishore",
-      "brandName": "NASA",
       "price": "98",
+      "brandName": "NASA",
       "description": "This is a rocket from Nasa",
       "id": "TgDMUD3"
     },
     {
-      "productName": "",
-      "price": null,
-      "brandName": "",
-      "description": "",
-      "id": "6ng_5oY"
+      "productName": "smart watch",
+      "price": "2000",
+      "brandName": "Boat",
+      "description": "this is watch",
+      "id": "F3hlst9"
+    },
+    {
+      "productName": "Coffee",
+      "price": "10",
+      "brandName": "Sunrise",
+      "description": "Morning rise",
+      "id": "Hcu0TaN"
     }
   ],
   "cart": [
     {
-      "productId": "lpWFW15",
-      "productName": "mobile",
-      "brandName": "Oneplus",
-      "description": "Never settle",
-      "price": "40000",
-      "quantity": 3,
-      "uid": 3,
+      "productId": "fNSJm8g",
+      "productName": "one",
+      "brandName": "NASAs",
+      "description": "This is a rocket from Nasa",
+      "price": 12,
+      "quantity": 1,
+      "uid": 1,
       "id": 1
+    },
+    {
+      "productId": "TgDMUD3",
+      "productName": "kishore",
+      "brandName": "NASA",
+      "description": "This is a rocket from Nasa",
+      "price": "98",
+      "quantity": 1,
+      "uid": 1,
+      "id": 2
+    },
+    {
+      "productId": "F3hlst9",
+      "productName": "smart watch",
+      "brandName": "Boat",
+      "description": "this is watch",
+      "price": "2000",
+      "quantity": 1,
+      "uid": 1,
+      "id": 3
+    },
+    {
+      "productId": "Hcu0TaN",
+      "productName": "Coffee",
+      "brandName": "Sunrise",
+      "description": "Morning rise",
+      "price": "10",
+      "quantity": 1,
+      "uid": 1,
+      "id": 4
     }
   ],
   "users": [
@@ -105,6 +135,16 @@
       "dob": "2026-07-08",
       "role": "admin",
       "id": "SqLKXWX"
+    },
+    {
+      "uid": 6,
+      "name": "ram",
+      "username": "ram1",
+      "password": "12345678",
+      "email": "kishorebalakumar07@gmail.com",
+      "dob": "2026-07-03",
+      "role": "user",
+      "id": "OXfnxSe"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

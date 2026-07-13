@@ -4,6 +4,8 @@ import { useAuthStore } from "@/stores/userAuth";
 import { onMounted, reactive, ref } from "vue";
 import Fancybutton from "@/components/fancybutton.vue";
 import { useRules } from "vuetify/labs/rules";
+import toast from "@/utility/toast";
+import displaycard from "@/components/homePage/displaycard.vue";
 
 const productStore = useProductStore();
 const userStore = useAuthStore();
@@ -13,6 +15,7 @@ const showPopup = ref(false);
 const addItems = reactive({ id: null, productName: "", price: null });
 const isUpdate = ref(false);
 const dialog = ref(false)
+const form =ref(null)
 
 function openPopup(product, updateMode) {
   isUpdate.value = updateMode;
@@ -29,7 +32,18 @@ function openPopup(product, updateMode) {
 function closePopup() {
   dialog.value = false;
 }
-function save() {
+async function save() {
+
+  console.log("form :",form)
+  
+
+  const {valid} = await form.value.validate()
+  console.log(valid)
+  if(!valid){
+    toast.error("empty data");
+    return;
+  }
+
   if (isUpdate.value) {
     productStore.updateProduct(addItems);
   } else {
@@ -43,19 +57,21 @@ onMounted(() =>{
 </script>
 
 <template>
-  <v-container class="container">
+  <v-container>
     <Fancybutton @click="openPopup({ id: null, productName: '', price: null, brandName:'',description:'' },false) ; dialog = true">Add Product</Fancybutton>
 
-    <div class="card" v-for="product in productStore.productsItems" :key="product.id">
-      <p>product name : {{ product.brandName}} {{ product.productName }}</p>
-      <p>price :{{ product.price }}</p>
-      <p>Description: {{ product.description }}</p>
-      <Fancybutton @click="openPopup(product,true); dialog= true" >Update</FancyButton>
+    <v-card class="my-4 pa-4 hover-elevation-5" elevation-5  v-for="product in productStore.productsItems" :key="product.id">
+      <displaycard :product="product" />
 
-      <Fancybutton @click="productStore.deleteProduct(product)">delete</Fancybutton>
-    </div>
+      <v-card-actions class=" border-primary">
+        <Fancybutton class="mx-2" @click="openPopup(product,true); dialog= true"> Update</FancyButton>
+
+        <Fancybutton  @click="productStore.deleteProduct(product)">delete</Fancybutton>
+      </v-card-actions>
+      
+      </v-card>
     
-  <v-dialog v-model="dialog" class="ma-5" height="900" width="700" rounded=""xl >
+  <v-dialog v-model="dialog" class="ma-5" height="900" width="700" rounded="sm" persistent>
     <v-form ref="form"  @submit.prevent="save">
     <v-card rounded class="px-4">
       <v-card-title>

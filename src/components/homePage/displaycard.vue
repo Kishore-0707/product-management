@@ -12,6 +12,7 @@ const router = useRouter();
 const props = defineProps({
   product: Object
 })
+console.log('Pro',props.product.image)
 
 </script>
 

@@ -12,20 +12,35 @@ const userStore = useAuthStore();
 const rules = useRules();
 
 const showPopup = ref(false);
-const addItems = reactive({ id: null, productName: "", price: null ,description : '', brandName : '',image : []});
+const addItems = reactive({
+  id: null,
+  productName: "",
+  price: null,
+  description: "",
+  brandName: "",
+  image: null,
+  existingImage: "",
+});
 const isUpdate = ref(false);
-const dialog = ref(false)
-const form = ref(null)
+const dialog = ref(false);
+const form = ref(null);
 
 function openPopup(product, updateMode) {
+  // console.log("Hi",product.image)
   isUpdate.value = updateMode;
 
-  addItems.id = product.id; 
-  addItems.productName = product.productName;
+  addItems.id = product.id;
+  addItems.productName = product.product_name;
   addItems.price = product.price;
-  addItems.brandName = product.brandName;
+  addItems.brandName = product.brand_name;
   addItems.description = product.description;
-  addItems.image = []; // Correct: Ready to take raw file arrays
+  addItems.image = null;
+
+  if (updateMode) {
+    addItems.existingImage = product.image;
+  } else {
+    addItems.existingImage = "";
+  }
 
   showPopup.value = true;
 }
@@ -35,106 +50,147 @@ function closePopup() {
 }
 
 async function save() {
-  console.log("form :", form)
+  console.log("form :", form);
 
-  console.log("image: ",addItems.image);
-  
-  const { valid } = await form.value.validate()
-  console.log(valid)
-  if(!valid){
+  const { valid } = await form.value.validate();
+  console.log(valid);
+  if (!valid) {
     toast.error("empty data");
     return;
   }
 
-  const fileToUpload = addItems.image? addItems.image : null;
+  const fileToUpload = addItems.image ? addItems.image : null;
 
-  const payload = {
-    id: addItems.id,
-    productName: addItems.productName,
-    price: addItems.price,
-    brandName: addItems.brandName,
-    description: addItems.description,
-    image: fileToUpload 
-  };
-  console.log('payload with raw file binary:', payload)
+  const formData = new FormData();
+  formData.append("id", addItems.id);
+  formData.append("productName", addItems.productName);
+  formData.append("price", addItems.price);
+  formData.append("brandName", addItems.brandName);
+  formData.append("description", addItems.description);
+  if (fileToUpload) {
+    formData.append("image", fileToUpload); // File object goes here directly
+  }
+  console.log(fileToUpload)
 
   if (isUpdate.value) {
-    productStore.updateProduct(payload);
+    productStore.updateProduct(formData);
   } else {
-    productStore.addProduct(payload);
+    productStore.addProduct(formData);
   }
   dialog.value = false;
 }
 
 onMounted(() => {
-  productStore.fetchProducts()
-})
+  productStore.fetchProducts();
+});
 </script>
 
 <template>
-  <v-container>
-    <Fancybutton @click="openPopup({ id: null, productName: '', price: null, brandName:'',description:'' ,image:[]},false) ; dialog = true">Add Product</Fancybutton>
+  <v-main>
 
-    <v-card class="my-4 pa-4 hover-elevation-5" elevation-5 v-for="product in productStore.productsItems" :key="product.id">
+  
+  <v-container  class="d-flex flex-wrap ma-2 w-100">
+    <Fancybutton
+      @click="
+        openPopup(
+          { id: null, productName: '', price: null, brandName: '', description: '', image: [] },
+          false,
+        );
+        dialog = true;
+      "
+      >Add Product</Fancybutton
+    >
+
+    <v-card
+      class="ma-10 pa-4 w-050 hover-elevation-5 "
+      elevation-5
+      v-for="product in productStore.productsItems"
+      :key="product.id"
+    >
       <displaycard :product="product" />
 
       <v-card-actions class="border-primary">
-        <Fancybutton class="mx-2" @click="openPopup(product,true); dialog= true"> Update</Fancybutton>
+        <Fancybutton
+          class="mx-2"
+          @click="
+            openPopup(product, true);
+            dialog = true;
+          "
+        >
+          Update</Fancybutton
+        >
         <Fancybutton @click="productStore.deleteProduct(product)">delete</Fancybutton>
       </v-card-actions>
     </v-card>
-    
+
     <v-dialog v-model="dialog" class="ma-5" height="900" width="700" rounded="sm" persistent>
       <v-form ref="form" @submit.prevent="save">
         <v-card rounded class="px-4">
           <v-card-title>
             {{ isUpdate ? "Update Product" : "Add Product" }}
-          </v-card-title > 
-          
+          </v-card-title>
+
           <!-- FIX: Removed trailing semicolons from class names -->
-          <v-text-field v-model="addItems.brandName" 
-                        label="Brand Name"
-                        prepend-inner-icon="mdi-cart"
-                        variant="outlined"
-                        placeholder="Enter the brand name" 
-                        style="height: 20px; margin-bottom: 60px; padding: 20px;" 
-                        class="pa-2"  
-                        :rules="[rules.required('You have to fill this field!')]" />
-                        
-          <v-text-field v-model="addItems.productName"
-                        label="product Name"
-                        prepend-inner-icon="mdi-cart-outline"
-                        variant="outlined"
-                        placeholder="Enter the product name" 
-                        style="height: 20px; margin-bottom: 60px; padding: 20px;" 
-                        class="pa-2"  
-                        :rules="[rules.required('You have to fill this field!')]" />
-                        
-          <v-text-field v-model="addItems.description"
-                        label="Description"
-                        prepend-inner-icon="mdi-basket"
-                        variant="outlined" 
-                        placeholder="Enter the description" 
-                        style="height: 20px; margin-bottom: 60px; padding: 20px;" 
-                        class="pa-2"  
-                        :rules="[rules.required('You have to fill this field!')]" />
-                        
-          <v-text-field v-model="addItems.price"
-                        label="Price"
-                        prepend-inner-icon="mdi-tag"
-                        variant="outlined" 
-                        type="number"   
-                        placeholder="Enter the product price" 
-                        style="height: 20px; margin-bottom: 60px; padding: 20px;"  
-                        :rules="[rules.required('You have to fill this field!')]" />
-                        
-          <v-file-input v-model="addItems.image"
-                        label="Product Image"
-                        prepend-inner-icon="mdi-camera"
-                        variant="outlined"
-                        accept="image/png, image/jpeg, image/jpg"
-                        placeholder="Choose an image" />
-          <v-spacer/>
+          <v-text-field
+            v-model="addItems.brandName"
+            label="Brand Name"
+            prepend-inner-icon="mdi-cart"
+            variant="outlined"
+            placeholder="Enter the brand name"
+            style="height: 20px; margin-bottom: 60px; padding: 20px"
+            class="pa-2"
+            :rules="[rules.required('You have to fill this field!')]"
+          />
+
+          <v-text-field
+            v-model="addItems.productName"
+            label="product Name"
+            prepend-inner-icon="mdi-cart-outline"
+            variant="outlined"
+            placeholder="Enter the product name"
+            style="height: 20px; margin-bottom: 60px; padding: 20px"
+            class="pa-2"
+            :rules="[rules.required('You have to fill this field!')]"
+          />
+
+          <v-text-field
+            v-model="addItems.description"
+            label="Description"
+            prepend-inner-icon="mdi-basket"
+            variant="outlined"
+            placeholder="Enter the description"
+            style="height: 20px; margin-bottom: 60px; padding: 20px"
+            class="pa-2"
+            :rules="[rules.required('You have to fill this field!')]"
+          />
+
+          <v-text-field
+            v-model="addItems.price"
+            label="Price"
+            prepend-inner-icon="mdi-tag"
+            variant="outlined"
+            type="number"
+            placeholder="Enter the product price"
+            style="height: 20px; margin-bottom: 60px; padding: 20px"
+            :rules="[rules.required('You have to fill this field!')]"
+          />
+
+          <v-img
+            v-if="addItems.existingImage"
+            :src="`http://localhost:3333/uploads/products/${addItems.existingImage}`"
+            width="150"
+            class="mb-4"
+          />
+
+          <v-file-input
+            v-model="addItems.image"
+            label="Product Image"
+            prepend-inner-icon="mdi-camera"
+            variant="outlined"
+            accept="image/png, image/jpeg, image/jpg"
+            placeholder="Choose an image"
+          />
+          <v-spacer />
 
           <v-card-actions class="justify-center">
             <!-- FIX: Changed color from invalid "danger" to valid "error" -->
@@ -145,6 +201,7 @@ onMounted(() => {
       </v-form>
     </v-dialog>
   </v-container>
+  </v-main>
 </template>
 
 <style scoped>
@@ -191,7 +248,7 @@ onMounted(() => {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
- .add-footer{
+.add-footer {
   justify-content: center;
 }
 </style>

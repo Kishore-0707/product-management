@@ -69,17 +69,8 @@ export const useProductStore = defineStore("products", {
         quantity: cartItem.quantity,
       });
     },
-    async addProduct(product) {
+    async addProduct(formData) {
       try {
-        const formData = new FormData();
-        formData.append("productName", product.productName);
-        formData.append("price", product.price);
-        formData.append("brandName", product.brandName);
-        formData.append("description", product.description);
-        if (product.image) {
-          formData.append("image", product.image); // File object goes here directly
-        }
-
         await api.post("/products", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
@@ -131,19 +122,15 @@ export const useProductStore = defineStore("products", {
       }
     },
 
-    async updateProduct(updatedProduct) {
-      const index = this.productsItems.findIndex((product) => product.id === updatedProduct.id);
-      console.log(index, "updated excuted");
-      if (index !== -1) {
-        await api.put(`/products/${updatedProduct.id}`, {
-          productName: updatedProduct.productName,
-          price: updatedProduct.price,
-          brandName: updatedProduct.brandName,
-          description: updatedProduct.description,
-          image: updatedProduct.image,
-        });
-        this.productsItems[index] = updatedProduct;
-      }
+    async updateProduct(formData) {
+      console.log(formData)
+      await api.put("/products", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      await this.fetchProducts();
     },
   },
 });

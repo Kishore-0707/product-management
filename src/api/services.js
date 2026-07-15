@@ -1,4 +1,7 @@
 import axios from "axios";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/userAuth";
+
 
 
 const api = axios.create({
@@ -18,11 +21,16 @@ api.interceptors.response.use((response) => {
     return response;
   },
   (error) => {
+
+    const router = useRouter()
+const userStore  = useAuthStore() 
        
-    if (error.response.status === 404){
-        console.log("Not Found");
+    if (error.response.status === 404 && error.response.data.message === "Invalid token"){
+        userStore.logout()
+        router.push('/')
+
     }
-    
+
 
     return Promise.reject(error);
   });

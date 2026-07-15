@@ -12,6 +12,7 @@ const router = useRouter();
 
 onMounted(() => {
   productStore.fetchProducts();
+  productStore.fetchCartItems();
 });
 
 function addToCart(product) {

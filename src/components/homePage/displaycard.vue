@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/userAuth";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { defineProps } from "vue";
+import api from "@/api/services";
 
 const productStore = useProductStore();
 const userStore = useAuthStore();
@@ -15,12 +16,18 @@ const props = defineProps({
 </script>
 
 <template>
+  <v-img
+  :src =" `http://localhost:3333/uploads/products/${props.product.image}`"
+  height="200"
+  cover
+/>
   <v-card-title>
-    <p>product name : {{ props.product.brandName }} {{ props.product.productName }}</p></v-card-title
+    <p>product name : {{ props.product.brand_name }} {{ props.product.product_name }}</p></v-card-title
   >
   <v-card-subtitle>
     <p>Description : {{ props.product.description }}</p></v-card-subtitle>
   <p style="padding-left: 20px">price :{{ props.product.price }}</p>
+
 
   
 </template>

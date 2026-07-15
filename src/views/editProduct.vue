@@ -12,10 +12,10 @@ const userStore = useAuthStore();
 const rules = useRules();
 
 const showPopup = ref(false);
-const addItems = reactive({ id: null, productName: "", price: null });
+const addItems = reactive({ id: null, productName: "", price: null ,description : '', brandName : '',image : []});
 const isUpdate = ref(false);
 const dialog = ref(false)
-const form =ref(null)
+const form = ref(null)
 
 function openPopup(product, updateMode) {
   isUpdate.value = updateMode;
@@ -25,6 +25,7 @@ function openPopup(product, updateMode) {
   addItems.price = product.price;
   addItems.brandName = product.brandName;
   addItems.description = product.description;
+  addItems.image = []; // Correct: Ready to take raw file arrays
 
   showPopup.value = true;
 }
@@ -32,109 +33,118 @@ function openPopup(product, updateMode) {
 function closePopup() {
   dialog.value = false;
 }
+
 async function save() {
+  console.log("form :", form)
 
-  console.log("form :",form)
+  console.log("image: ",addItems.image);
   
-
-  const {valid} = await form.value.validate()
+  const { valid } = await form.value.validate()
   console.log(valid)
   if(!valid){
     toast.error("empty data");
     return;
   }
 
+  const fileToUpload = addItems.image? addItems.image : null;
+
+  const payload = {
+    id: addItems.id,
+    productName: addItems.productName,
+    price: addItems.price,
+    brandName: addItems.brandName,
+    description: addItems.description,
+    image: fileToUpload 
+  };
+  console.log('payload with raw file binary:', payload)
+
   if (isUpdate.value) {
-    productStore.updateProduct(addItems);
+    productStore.updateProduct(payload);
   } else {
-    productStore.addProduct({productName :addItems.productName, price :addItems.price, brandName : addItems.brandName,description : addItems.description});
+    productStore.addProduct(payload);
   }
   dialog.value = false;
 }
-onMounted(() =>{
+
+onMounted(() => {
   productStore.fetchProducts()
 })
 </script>
 
 <template>
   <v-container>
-    <Fancybutton @click="openPopup({ id: null, productName: '', price: null, brandName:'',description:'' },false) ; dialog = true">Add Product</Fancybutton>
+    <Fancybutton @click="openPopup({ id: null, productName: '', price: null, brandName:'',description:'' ,image:[]},false) ; dialog = true">Add Product</Fancybutton>
 
-    <v-card class="my-4 pa-4 hover-elevation-5" elevation-5  v-for="product in productStore.productsItems" :key="product.id">
+    <v-card class="my-4 pa-4 hover-elevation-5" elevation-5 v-for="product in productStore.productsItems" :key="product.id">
       <displaycard :product="product" />
 
-      <v-card-actions class=" border-primary">
-        <Fancybutton class="mx-2" @click="openPopup(product,true); dialog= true"> Update</FancyButton>
-
-        <Fancybutton  @click="productStore.deleteProduct(product)">delete</Fancybutton>
+      <v-card-actions class="border-primary">
+        <Fancybutton class="mx-2" @click="openPopup(product,true); dialog= true"> Update</Fancybutton>
+        <Fancybutton @click="productStore.deleteProduct(product)">delete</Fancybutton>
       </v-card-actions>
-      
-      </v-card>
-    
-  <v-dialog v-model="dialog" class="ma-5" height="900" width="700" rounded="sm" persistent>
-    <v-form ref="form"  @submit.prevent="save">
-    <v-card rounded class="px-4">
-      <v-card-title>
-        {{ isUpdate ? "Update Product" : "Add Product" }}
-      </v-card-title > 
-      <v-text-field v-model="addItems.brandName" 
-                    label="Brand Name"
-                    prepend-inner-icon="mdi-cart"
-                    variant="outlined"
-                    placeholder="Enter the brand name" 
-                    style="height: 20px; margin-bottom: 60px; padding: 20px;" 
-                    class="pa-2;"  
-                    :rules="[rules.required('You have to fill this field!')]" />
-      <v-text-field v-model="addItems.productName"
-                     label="product Name"
-                    prepend-inner-icon="mdi-cart-outline"
-                    variant="outlined"
-                    placeholder="Enter the product name" 
-                    style="height: 20px; margin-bottom: 60px; padding: 20px;" 
-                    class="pa-2;"  
-                    :rules="[rules.required('You have to fill this field!')]" />
-      <v-text-field v-model="addItems.description"
-                    label="Description"
-                    prepend-inner-icon="mdi-basket"
-                    variant="outlined" 
-                    placeholder="Enter the description" 
-                    style="height: 20px; margin-bottom: 60px; padding: 20px;" class="pa-2;"  
-                    :rules="[rules.required('You have to fill this field!')]" />
-      <v-text-field v-model="addItems.price"
-                    label="Price"
-                    prepend-inner-icon="mdi-tag"
-                    variant="outlined" 
-                    type="number"   
-                    placeholder="Enter the product price" 
-                    style="height: 20px; margin-bottom: 60px; padding: 20px;"  
-                    :rules="[rules.required('You have to fill this field!')]" />
-      <v-spacer/>
-
-      <v-card-actions  class=" justify-center" >
-        <v-btn variant="flat" color="danger"  class="px-24" type="submit">Save</v-btn>
-
-      <v-btn variant="flat" color="error" @click="closePopup()">Close</v-btn>
-      </v-card-actions>
-      
     </v-card>
-    </v-form>
+    
+    <v-dialog v-model="dialog" class="ma-5" height="900" width="700" rounded="sm" persistent>
+      <v-form ref="form" @submit.prevent="save">
+        <v-card rounded class="px-4">
+          <v-card-title>
+            {{ isUpdate ? "Update Product" : "Add Product" }}
+          </v-card-title > 
+          
+          <!-- FIX: Removed trailing semicolons from class names -->
+          <v-text-field v-model="addItems.brandName" 
+                        label="Brand Name"
+                        prepend-inner-icon="mdi-cart"
+                        variant="outlined"
+                        placeholder="Enter the brand name" 
+                        style="height: 20px; margin-bottom: 60px; padding: 20px;" 
+                        class="pa-2"  
+                        :rules="[rules.required('You have to fill this field!')]" />
+                        
+          <v-text-field v-model="addItems.productName"
+                        label="product Name"
+                        prepend-inner-icon="mdi-cart-outline"
+                        variant="outlined"
+                        placeholder="Enter the product name" 
+                        style="height: 20px; margin-bottom: 60px; padding: 20px;" 
+                        class="pa-2"  
+                        :rules="[rules.required('You have to fill this field!')]" />
+                        
+          <v-text-field v-model="addItems.description"
+                        label="Description"
+                        prepend-inner-icon="mdi-basket"
+                        variant="outlined" 
+                        placeholder="Enter the description" 
+                        style="height: 20px; margin-bottom: 60px; padding: 20px;" 
+                        class="pa-2"  
+                        :rules="[rules.required('You have to fill this field!')]" />
+                        
+          <v-text-field v-model="addItems.price"
+                        label="Price"
+                        prepend-inner-icon="mdi-tag"
+                        variant="outlined" 
+                        type="number"   
+                        placeholder="Enter the product price" 
+                        style="height: 20px; margin-bottom: 60px; padding: 20px;"  
+                        :rules="[rules.required('You have to fill this field!')]" />
+                        
+          <v-file-input v-model="addItems.image"
+                        label="Product Image"
+                        prepend-inner-icon="mdi-camera"
+                        variant="outlined"
+                        accept="image/png, image/jpeg, image/jpg"
+                        placeholder="Choose an image" />
+          <v-spacer/>
 
-  </v-dialog>
-</v-container>
-
-<!--
-  <div v-if="showPopup" class="popup-overlay" @click.self="closePopup">
-    <div class="popup-box">
-      <h2>{{ isUpdate ? "Update Product" : "Add Product" }}</h2>
-
-      <input v-model="addItems.productName" placeholder="Enter the product name" />
-      <input v-model="addItems.price" type="number" placeholder="Enter the product price" />
-
-      <button @click="save">Save</button>
-      <button @click="closePopup()">Close</button>
-    </div>
-  </div> 
--->  
+          <v-card-actions class="justify-center">
+            <!-- FIX: Changed color from invalid "danger" to valid "error" -->
+            <v-btn variant="flat" color="error" class="px-24" type="submit">Save</v-btn>
+            <v-btn variant="flat" color="secondary" @click="closePopup()">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-form>
+    </v-dialog>
+  </v-container>
 </template>
 
 <style scoped>

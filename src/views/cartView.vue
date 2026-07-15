@@ -31,7 +31,18 @@ productStore.fetchCartItems();
      -->
     <v-card v-for="items in productStore.cartItems" class="ma-4" :elevation="10">
       
-      <displaycard :product="items"/>
+      <v-img
+  :src =" `http://localhost:3333/uploads/products/${items.product.image}`"
+  height="200"
+  cover
+/>
+  <v-card-title>
+    <p>product name : {{ items.product.brand_name }} {{ items.product.product_name }}</p></v-card-title
+  >
+  <v-card-subtitle>
+    <p>Description : {{ items.product.description }}</p></v-card-subtitle>
+  <p style="padding-left: 20px">price :{{ items.product.price }}</p>
+
       <v-card-actions  varient="flat" style="display: flex;">
         <fancybutton style="margin-right:0px ;" @click="productStore.deleteCartProduct(items)">
           -

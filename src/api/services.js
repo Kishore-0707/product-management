@@ -2,18 +2,17 @@ import axios from "axios";
 
 
 const api = axios.create({
-    baseURL : "http://localhost:3000",
+    baseURL : "http://localhost:3333",
 });
 api.interceptors.request.use((config) => {
-        console.log("REquest Sent")
-        console.log(config.method,"\nconfig:",config)
+  const token = localStorage.getItem("token");
 
-        return config
-},
-(error) => {
-    return Promise.reject(error);
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-)
+
+  return config;
+});
 
 api.interceptors.response.use((response) => {
     return response;
@@ -23,6 +22,7 @@ api.interceptors.response.use((response) => {
     if (error.response.status === 404){
         console.log("Not Found");
     }
+    
 
     return Promise.reject(error);
   });

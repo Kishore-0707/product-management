@@ -3,6 +3,7 @@ import { useProductStore } from "./product";
 import axios from "axios";
 import toast from "@/utility/toast";
 import api from "@/api/services";
+import { useLocale } from "vuetify/lib/composables/locale.mjs";
 
 export const useAuthStore = defineStore("user", {
   state: () => ({
@@ -10,7 +11,7 @@ export const useAuthStore = defineStore("user", {
     role: "",
     uid: null,
     userdetails: [],
-    
+
     // { uid : 1, username : "kishore", password : "admin@123", role : "admin"},
     // { uid : 2, username : "user", password : "user@123", role : "user"}
     // ],
@@ -18,54 +19,61 @@ export const useAuthStore = defineStore("user", {
   getters: {},
   actions: {
     async fetchUsers() {
-      const response = await axios.get("http://localhost:3000/users");
+      const response = await api.get("/users");
       this.userdetails = response.data;
-      // console.log(this.userdetails);
+      console.log(this.userdetails);
     },
-    login(user) {
+    async login(user) {
       console.log("login function");
 
-      const value = this.userdetails.find(
-        (users) => users.username === user.username && users.password === user.password,
-      );
-      if (value !== undefined) {
-        this.role = value.role;
-        this.uid = value.uid;
-        toast.success("Login Succesfully")
-        sessionStorage.setItem("User", JSON.stringify(value));
-      }
-      else{
-        toast.error("Failed to login")
-      }
+      try {
+        const response = await api.post("/login", user);
 
-      return value;
+        console.log(response.data);
+
+        const { token, user: loggedUser } = response.data;
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(loggedUser));
+        this.uid = loggedUser.uid;
+        this.role = loggedUser.role;
+
+        toast.success("Login Successfully");
+
+        return loggedUser;
+      } catch (error) {
+        toast.error("Invalid username or password");
+        console.log(error);
+        return null;
+      }
     },
     logout() {
       console.log("Logout Excuted");
       this.role = "";
       this.currentUser = false;
       this.uid = null;
-      sessionStorage.removeItem("User")
-      toast.success("Logout Successfully")
+      localStorage.removeItem("user");
+      toast.success("Logout Successfully");
     },
     restore() {
-      console.log("Restore Excuted")
-      const isUserLogin = JSON.parse(sessionStorage.getItem("User"));
+      console.log("Restore Excuted");
+      const isUserLogin = JSON.parse(localStorage.getItem("user"));
       if (isUserLogin) {
-        console.log("USer Reload Excuted")
+        console.log("USer Reload Excuted");
         this.role = isUserLogin.role;
         this.uid = isUserLogin.uid;
-        this.currentUser = true
+        this.currentUser = true;
       }
     },
-    async addUsers(users){
-
-      const newID = this.userdetails.length === 0 ? 1 : Math.max(...this.userdetails.map(user => user.uid)) + 1;
-      await api.post(`http://localhost:3000/users`,{
+    async addUsers(users) {
+      const newID =
+        this.userdetails.length === 0
+          ? 1
+          : Math.max(...this.userdetails.map((user) => user.uid)) + 1;
+      await api.post(`/users`, {
         uid: newID,
-        ...users
-      })
+        ...users,
+      });
     },
-
   },
 });

@@ -18,9 +18,9 @@ const user = reactive({
   password: "",
 });
 
-function Submit() {
-  roles.value = userStore.login(user);
-  if (roles.value === undefined) {
+async function Submit() {
+  const logedUser = await userStore.login(user);
+  if (!logedUser) {
     rolesError.value = "Invalid login";
   } else {
     router.push("/");

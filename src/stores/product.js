@@ -5,36 +5,30 @@ import api from "@/api/services";
 export const useProductStore = defineStore("products", {
   state: () => ({
     productsItems: [],
-    //   { id: 1, productName: "bottle", price: 300 },
-    //   { id: 2, productName: "mobile", price: 40000 },
-    //   { id: 3, productName: "Football", price: 5000 },
-    //   { id: 4, productName: "Airpods", price: 20000 },
-    //   { id: 5, productName: "Watch", price: 5000 },
-    // ],
 
     cartItems: [],
-    search : "",
-
-    // priceInCart: [],
+    search: "",
   }),
   getters: {},
   actions: {
     async fetchProducts() {
-      const response = await api.get(`http://localhost:3000/products`);
-      
+      const response = await api.get(`/products`);
+
       sessionStorage.setItem("products", JSON.stringify(response.data));
-      console.log("response :", response);
-      console.log("data", response.data);
       this.productsItems = response.data;
     },
 
     async fetchCartItems() {
-      const userStore = useAuthStore()
-      console.log(userStore.uid)
-      const response = await api.get(`http://localhost:3000/cart?uid_where =${userStore.uid}` );
+      const userStore = useAuthStore();
+      console.log("uid", userStore.uid);
+
+      const response = await api.get("/carts", {
+        params: {
+          userId: userStore.uid,
+        },
+      });
       sessionStorage.setItem("cartItems", JSON.stringify(response.data));
-      console.log("response :", response);
-      console.log("data", response.data);
+      console.log("CARTS :", response.data);
       this.cartItems = response.data;
     },
 
@@ -44,26 +38,23 @@ export const useProductStore = defineStore("products", {
         return false;
       }
       const index = this.cartItems.findIndex(
-        (items) => product.id === items.productId && items.uid === userStore.uid,
+        (items) => items.productId === product.id && items.userId === userStore.uid,
       );
       //console.log(index);
       if (index === -1) {
         const items = {
           productId: product.id,
-          productName: product.productName,
-          brandName: product.brandName,
-          description : product.description,
-          price: product.price,
           quantity: 1,
-          uid: userStore.uid,
+          userId: userStore.uid,
         };
         //this.cartItems.push({ ...product, quantity: 1, uid: userStore.uid });
-        const response = await api.post("http://localhost:3000/cart", items);
-
+        const response = await api.post("/carts", items);
+        console.log(response.data);
         this.cartItems.push(response.data);
       } else {
         this.cartItems[index].quantity++;
-        await api.patch(`http://localhost:3000/cart/${this.cartItems[index].id}`, {
+        await api.patch(`/carts`, {
+          id: this.cartItems[index].id,
           quantity: this.cartItems[index].quantity,
         });
       }
@@ -73,31 +64,46 @@ export const useProductStore = defineStore("products", {
     async increaseQuantity(cartItem) {
       cartItem.quantity++;
 
-      await api.patch(`http://localhost:3000/cart/${cartItem.id}`, {
+      await api.patch("/carts", {
+        id: cartItem.id,
         quantity: cartItem.quantity,
       });
     },
     async addProduct(product) {
-      await api.post("http://localhost:3000/products", {
-        ...product,
-      });
-      await this.fetchProducts();
-      //this.productsItems.push( { id: newID, ...product });
-      console.log(this.productsItems);
+      try {
+        const formData = new FormData();
+        formData.append("productName", product.productName);
+        formData.append("price", product.price);
+        formData.append("brandName", product.brandName);
+        formData.append("description", product.description);
+        if (product.image) {
+          formData.append("image", product.image); // File object goes here directly
+        }
+
+        await api.post("/products", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        await this.fetchProducts();
+      } catch (error) {
+        console.error("addProduct failed:", error?.response?.data || error);
+        toast.error("Failed to add product");
+        throw error;
+      }
     },
     calculatePrice() {
       const userStore = useAuthStore();
 
       return this.cartItems.reduce((total, item) => {
-        if (item.uid === userStore.uid) {
-          return total + item.price * item.quantity;
+        if (item.user_id === userStore.uid) {
+          return total + item.product.price * item.quantity;
         }
         return total;
       }, 0);
     },
 
     async deleteProduct(product) {
-      await api.delete(`http://localhost:3000/products/${product.id}`);
+      await api.delete(`/products`, { params: { id: product.id } });
       await this.fetchProducts();
       //this.productsItems = this.productsItems.filter((search) => product.id !== search.id);
     },
@@ -110,11 +116,16 @@ export const useProductStore = defineStore("products", {
       if (this.cartItems[index].quantity > 1) {
         this.cartItems[index].quantity--;
 
-        await api.patch(`http://localhost:3000/cart/${cartItem.id}`, {
+        await api.patch(`/carts`, {
+          id: cartItem.id,
           quantity: this.cartItems[index].quantity,
         });
       } else {
-        await api.delete(`http://localhost:3000/cart/${cartItem.id}`);
+        await api.delete("/carts", {
+          params: {
+            id: cartItem.id,
+          },
+        });
 
         this.cartItems.splice(index, 1);
       }
@@ -124,11 +135,12 @@ export const useProductStore = defineStore("products", {
       const index = this.productsItems.findIndex((product) => product.id === updatedProduct.id);
       console.log(index, "updated excuted");
       if (index !== -1) {
-        await api.put(`http://localhost:3000/products/${updatedProduct.id}`, {
+        await api.put(`/products/${updatedProduct.id}`, {
           productName: updatedProduct.productName,
           price: updatedProduct.price,
-          brandName : updatedProduct.brandName,
-          description : updatedProduct.description,
+          brandName: updatedProduct.brandName,
+          description: updatedProduct.description,
+          image: updatedProduct.image,
         });
         this.productsItems[index] = updatedProduct;
       }

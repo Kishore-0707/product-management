@@ -3,19 +3,33 @@ import { useProductStore } from "@/stores/product";
 import { useAuthStore } from "@/stores/userAuth";
 import fancybutton from "@/components/fancybutton.vue";
 import { useRouter,RouterView } from "vue-router";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import Displaycard from "@/components/homePage/displaycard.vue";
 
 const productStore = useProductStore();
 const userStore = useAuthStore();
 const router = useRouter()
+const loading =ref(true)
 
-productStore.fetchCartItems();
-//console.log(userStore.uid )
+onMounted(async () => {
+  loading.value = true
+  await productStore.fetchCartItems();
+  loading.value = false
+})
 
 
 </script>
 <template>
+  <template v-if="loading">
+    <v-container>
+      <v-card v-for="n in 10" :key="n" sm="6" md="4"  class="w-10 my-6 pa-7" >
+            <v-skeleton-loader type="image" />
+            <v-skeleton-loader type="heading" />
+            <v-skeleton-loader type="text" />
+            <v-skeleton-loader type="button" />
+          </v-card>
+    </v-container>
+  </template>
   <v-container color="danger" class = "">
     <p v-if="productStore.calculatePrice() !== 0">Total Price :{{productStore.calculatePrice() }}</p>
     <p v-else >Cart is Empty !!</p>

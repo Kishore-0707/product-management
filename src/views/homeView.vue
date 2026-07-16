@@ -1,18 +1,23 @@
 <script setup>
-import displaycard from '@/components/homePage/displaycard.vue';
-import navt from '@/components/nav.vue';
+import displaycard from "@/components/homePage/displaycard.vue";
+import navt from "@/components/nav.vue";
 import { useProductStore } from "@/stores/product";
 import { useAuthStore } from "@/stores/userAuth";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const productStore = useProductStore();
 const userStore = useAuthStore();
 const router = useRouter();
 
-onMounted(() => {
-  productStore.fetchProducts();
-  productStore.fetchCartItems();
+const loading = ref(true);
+
+onMounted(async () => {
+  loading.value = true;
+
+  await productStore.fetchProducts();
+  await productStore.fetchCartItems();
+  loading.value = false;
 });
 
 function addToCart(product) {
@@ -32,49 +37,65 @@ productStore.$subscribe(
 );
 </script>
 <template>
-    <navt  />
+  <navt />
+
+  <template v-if="loading">
     <v-container class="my-16">
-    <v-row class="py-6">
-      <v-btn
-        color="primary"
-        rounded="lg"
-        size="large"
-        class=""
-        width="20%"
-        type="submit"
-        v-show="userStore.role === 'admin'"
-        @click="router.push('/edit')"
-        :ripple="{ class: 'text-red' }"
-      >
-        Edit Product</v-btn
-      >
-      <v-btn
-        color="primary"
-        rounded="lg"
-        size="large"
-        class="ml-4"
-        width="20%"
-        type="submit"
-        @click="router.push('/cart')"
-        >cart
-      </v-btn>
-    </v-row>
+          <v-card v-for="n in 10" :key="n" sm="6" md="4"  class="w-10 my-6 pa-7" >
+            <v-skeleton-loader type="image" />
+            <v-skeleton-loader type="heading" />
+            <v-skeleton-loader type="text" />
+            <v-skeleton-loader type="button" />
+          </v-card>
+    </v-container>
+  </template>
 
-    <v-card class="pa-6 mb-6" rounded="lg" v-for="product in productStore.productsItems" :key="product.$id">
-        <displaycard :product="product"/>
+  <template v-else>
+    <v-container class="my-16">
+      <v-row class="py-6">
         <v-btn
-    color="secondary"
-    rounded="lg"
-    size="large"
-    class="ma-8"
-    width="80%"
-    @click="addToCart(product)"
-    >add to cart</v-btn
-  >
-    </v-card>
-    
-  </v-container>
-</template>
-<style>
+          color="primary"
+          rounded="lg"
+          size="large"
+          class=""
+          width="20%"
+          type="submit"
+          v-show="userStore.role === 'admin'"
+          @click="router.push('/edit')"
+          :ripple="{ class: 'text-red' }"
+        >
+          Edit Product</v-btn
+        >
+        <v-btn
+          color="primary"
+          rounded="lg"
+          size="large"
+          class="ml-4"
+          width="20%"
+          type="submit"
+          @click="router.push('/cart')"
+          >cart
+        </v-btn>
+      </v-row>
 
-</style>
+      <v-card
+        class="pa-6 mb-6"
+        rounded="lg"
+        v-for="product in productStore.productsItems"
+        :key="product.$id"
+      >
+        <displaycard :product="product" />
+        <v-btn
+          color="secondary"
+          rounded="lg"
+          size="large"
+          class="ma-8"
+          width="80%"
+          @click="addToCart(product)"
+          >add to cart</v-btn
+        >
+      </v-card>
+    </v-container>
+  </template>
+</template>
+<style></style>
